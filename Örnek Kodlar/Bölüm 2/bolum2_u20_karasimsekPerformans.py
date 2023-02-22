@@ -1,0 +1,42 @@
+from machine import *
+import time
+led_no = [23, 22, 21, 19, 18, 5, 17, 16]
+led = [] # boş liste oluştur
+for i in led_no:
+    led.append(Pin(i, Pin.OUT))
+
+index = -1 # dizinin indisini gösteren değer
+yon = 0 # soldan sağa mı, sağdan sola mı?
+sayac = 0
+def karasimsek(t):
+    global index
+    global yon # değişkenleri global olarak al (kalıcı olması gerek)
+    if yon == 0: #soldan saga ise
+        index += 1 #indisi bir artır
+        led[index].value(1) #indise denk gelen ledi yak
+        if index != 0: # Eğer kenarda bulunmuyorsa kendinden onceki ledi sondur
+            led[index-1].value(0)
+        if index == 7: # sona geldiğinde yönü değiştir
+            yon = 1
+    if yon == 1: # sağdan sola ise
+        led[index].value(1) #indise denk gelen ledi yak
+        if index != 7: 
+            led[index+1].value(0) # eğer kenarda değilse kendinden oncekini sondur
+        if index == 0: # sona geldiğinde yon değiştir
+            yon = 0
+        if index > 0: # 0 olana kadar birer birer azalt
+            index -= 1
+    
+def ekrana_yazdir(t1):
+    global sayac
+    print("5 saniyede ana programda kod {0} kere calisti.".format(sayac))
+
+
+tim0 = Timer(0)
+tim1 = Timer(1)
+tim0.init(period = 100, mode = Timer.PERIODIC, callback = karasimsek)
+tim1.init(period = 5000, mode = Timer.ONE_SHOT, callback = ekrana_yazdir)
+#100ms periyotta zamanlayıcıyı çalıştır, tim1 5saniye sonra 1 kere calisacak
+
+while True:
+    sayac += 1
